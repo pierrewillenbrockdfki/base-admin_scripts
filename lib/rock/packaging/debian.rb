@@ -859,7 +859,13 @@ module Autoproj
                     if package_updated?(pkg)
 
                         Packager.warn "Package: #{pkg.name} requires update #{pkg.srcdir}"
-                        cmd_tar = "tar czf #{tarball} --exclude .git --exclude .svn --exclude CVS --exclude debian --exclude build #{File.basename(pkg.srcdir)}"
+
+                        # Make sure that the tar files checksum remains the same, even when modification timestamp changes, 
+                        # i.e. use gzip --no-name and set the initial date to the current day
+                        #
+                        # TODO: What if building over midnight -- prone to failure
+                        date=`date %Y%M%d`
+                        cmd_tar = "tar --mtime=#{date} --format=gnu --c --exclude .git --exclude .svn --exclude CVS --exclude debian --exclude build #{File.basename(pkg.srcdir)} | gzip --no-name > #{tarball} "
                         if !system(cmd_tar)
                             Packager.warn "Package: #{pkg.name} failed to create archive using command '#{cmd_tar}' -- pwd #{ENV['PWD']}"
                             raise RuntimeError, "Debian: #{pkg.name} failed to create archive using command '#{cmd_tar}' -- pwd #{ENV['PWD']}"
