@@ -189,7 +189,7 @@ module Autoproj
             end
 
             def git_version(pkg)
-                time_of_last_commit=pkg.importer.run_git_bare(pkg, 'log', '--encoding=UTF-8','--date=iso',"--pretty=format:'%ad'","-1").first
+                time_of_last_commit=pkg.importer.run_git_bare(pkg, 'log', '--encoding=UTF-8','--date=iso',"--pretty=format:'%cd'","-1").first
                 Time.parse(time_of_last_commit.strip)
             end
 
